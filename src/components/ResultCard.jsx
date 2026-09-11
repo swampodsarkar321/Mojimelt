@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, FlaskConical } from 'lucide-react';
+import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, FlaskConical, Film } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import ShareButtons from './ShareButtons.jsx';
 import PostStudio from './PostStudio.jsx';
 import PostToCommunity from './PostToCommunity.jsx';
 import { mixId } from '../utils/mixer.js';
 import { downloadSvgAsPng, copyImageToClipboard } from '../utils/download.js';
+import { downloadMixGif } from '../utils/gif.js';
 import { isFavorite, toggleFavorite } from '../utils/storage.js';
 
 function prettyTrait(value) {
@@ -23,6 +24,7 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
   const [downloading, setDownloading] = useState(false);
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [gifProgress, setGifProgress] = useState(0);
   const [showPost, setShowPost] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
   const toastTimer = useRef(null);
@@ -73,6 +75,20 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
       flash('Copy failed — use Download PNG.');
     } finally {
       setCopying(false);
+    }
+  };
+
+  const onGif = async () => {
+    if (!svgRef.current || gifProgress > 0) return;
+    setGifProgress(1);
+    try {
+      const gifName = filename.replace(/\.png$/, '.gif');
+      await downloadMixGif(svgRef.current, gifName, { onProgress: setGifProgress });
+      flash('GIF downloaded — send the moving emoji anywhere!');
+    } catch {
+      flash('GIF failed — try Download PNG.');
+    } finally {
+      setGifProgress(0);
     }
   };
 
@@ -172,9 +188,18 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
         </button>
         <button
           type="button"
+          onClick={onGif}
+          disabled={gifProgress > 0}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3.5 text-sm font-extrabold text-slate-700 transition hover:scale-[1.02] hover:border-violet-300 active:scale-95 disabled:opacity-70 dark:border-white/15 dark:bg-white/10 dark:text-white"
+        >
+          <Film size={17} aria-hidden />
+          {gifProgress > 0 ? `GIF ${gifProgress}%` : 'GIF'}
+        </button>
+        <button
+          type="button"
           onClick={onFav}
           aria-pressed={fav}
-          className={`col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-extrabold transition hover:scale-[1.02] active:scale-95 ${
+          className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-extrabold transition hover:scale-[1.02] active:scale-95 ${
             fav
               ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30'
               : 'border-2 border-slate-200 bg-white text-slate-700 hover:border-rose-300 dark:border-white/15 dark:bg-white/10 dark:text-white'
