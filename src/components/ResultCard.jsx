@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, Film, ChevronDown, Image as ImageIcon } from 'lucide-react';
+import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, Film, ChevronDown, Image as ImageIcon, Sticker } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import ShareButtons from './ShareButtons.jsx';
 import PostStudio from './PostStudio.jsx';
 import PostToCommunity from './PostToCommunity.jsx';
 import { mixId } from '../utils/mixer.js';
-import { downloadSvgAsPng, copyImageToClipboard } from '../utils/download.js';
+import { downloadSvgAsPng, copyImageToClipboard, downloadSvgAsWebp } from '../utils/download.js';
 import { downloadMixGif } from '../utils/gif.js';
 import { isFavorite, toggleFavorite } from '../utils/storage.js';
 
@@ -100,6 +100,17 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
       flash('GIF failed — try Download PNG.');
     } finally {
       setGifProgress(0);
+    }
+  };
+
+  const onWebp = async () => {
+    if (!svgRef.current) return;
+    try {
+      const webpName = filename.replace(/\.png$/, '.webp');
+      await downloadSvgAsWebp(svgRef.current, webpName, 512);
+      flash('Sticker downloaded — 512×512 WebP for WhatsApp stickers!');
+    } catch {
+      flash('WebP failed here — use Download PNG.');
     }
   };
 
@@ -218,6 +229,23 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
                 <span>
                   <span className="block text-sm font-extrabold text-slate-800 dark:text-white">GIF Animation</span>
                   <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">Moving bouncing emoji</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setDlOpen(false);
+                  onWebp();
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-violet-50 dark:hover:bg-white/10"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                  <Sticker size={18} aria-hidden />
+                </span>
+                <span>
+                  <span className="block text-sm font-extrabold text-slate-800 dark:text-white">WebP Sticker</span>
+                  <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">512×512 for WhatsApp stickers</span>
                 </span>
               </button>
             </div>

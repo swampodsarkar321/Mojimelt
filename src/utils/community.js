@@ -6,6 +6,7 @@ const POSTS_KEY = 'mojimelt:community-posts:v1';
 const LIKED_KEY = 'mojimelt:community-liked:v1';
 const OWN_KEY = 'mojimelt:community-own:v1';
 const SEASON_KEY = 'mojimelt:community-season:v1';
+const REPORTED_KEY = 'mojimelt:community-reported:v1';
 
 const HOUR = 3600_000;
 
@@ -92,7 +93,16 @@ export function seasonResetInfo() {
 export function getPosts() {
   const posts = ensureSeason();
   const liked = new Set(read(LIKED_KEY, []));
-  return posts.map((p) => ({ ...p, likedByMe: liked.has(p.id) }));
+  const reported = new Set(read(REPORTED_KEY, []));
+  return posts
+    .filter((p) => !reported.has(p.id))
+    .map((p) => ({ ...p, likedByMe: liked.has(p.id) }));
+}
+
+export function reportPost(id) {
+  const reported = new Set(read(REPORTED_KEY, []));
+  reported.add(id);
+  write(REPORTED_KEY, [...reported]);
 }
 
 export function getTop10() {
@@ -125,8 +135,9 @@ export function getMyPosts() {
   const posts = ensureSeason();
   const liked = new Set(read(LIKED_KEY, []));
   const own = new Set(read(OWN_KEY, []));
+  const reported = new Set(read(REPORTED_KEY, []));
   return posts
-    .filter((p) => own.has(p.id))
+    .filter((p) => own.has(p.id) && !reported.has(p.id))
     .sort((x, y) => y.createdAt - x.createdAt)
     .map((p) => ({ ...p, likedByMe: liked.has(p.id) }));
 }

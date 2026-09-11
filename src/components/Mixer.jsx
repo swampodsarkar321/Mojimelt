@@ -43,14 +43,28 @@ export default function Mixer({ initialA = '😂', initialB = '🔥', onMixChang
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const handleMixClick = () => {
+  const scheduleMix = useCallback((a, b, delay = 600) => {
     setMixing(true);
     setPulse((p) => p + 1);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      doMix(emojiA, emojiB);
+      doMix(a, b);
       setMixing(false);
-    }, 650);
+    }, delay);
+  }, [doMix]);
+
+  // live auto-mix: any selection/swap change re-mixes after a short pause
+  const firstChange = useRef(true);
+  useEffect(() => {
+    if (firstChange.current) {
+      firstChange.current = false;
+      return;
+    }
+    scheduleMix(emojiA, emojiB, 700);
+  }, [emojiA, emojiB, scheduleMix]);
+
+  const handleMixClick = () => {
+    scheduleMix(emojiA, emojiB, 650);
   };
 
   const handleRandom = () => {
@@ -58,13 +72,7 @@ export default function Mixer({ initialA = '😂', initialB = '🔥', onMixChang
     const b = randomEmoji([a]).char;
     setEmojiA(a);
     setEmojiB(b);
-    setMixing(true);
-    setPulse((p) => p + 1);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      doMix(a, b);
-      setMixing(false);
-    }, 550);
+    scheduleMix(a, b, 550);
   };
 
   const handlePick = (char) => {

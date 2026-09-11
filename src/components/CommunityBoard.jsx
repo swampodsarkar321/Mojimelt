@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Shuffle, Crown, Trophy, Clock3, User } from 'lucide-react';
+import { Heart, Shuffle, Crown, Trophy, Clock3, User, Flag } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import { mixEmojis } from '../utils/mixer.js';
-import { getTop10, getLatest, getMyPosts, getMyTotalLikes, toggleLike, timeAgo } from '../utils/community.js';
+import { getTop10, getLatest, getMyPosts, getMyTotalLikes, toggleLike, reportPost, timeAgo } from '../utils/community.js';
 
 const RANK_STYLE = [
   'bg-gradient-to-br from-amber-300 to-yellow-500 text-amber-950 shadow-amber-500/40',
@@ -11,9 +11,10 @@ const RANK_STYLE = [
   'bg-gradient-to-br from-orange-300 to-amber-600 text-orange-950 shadow-orange-500/40',
 ];
 
-function PostCard({ post, rank, onLike }) {
+function PostCard({ post, rank, onLike, onReport, reportArmed, onArmReport }) {
   const mix = mixEmojis(post.a, post.b);
   if (!mix) return null;
+  const armed = reportArmed === post.id;
   return (
     <article
       className={`relative flex items-center gap-3 rounded-3xl border bg-white p-3 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl sm:gap-4 sm:p-4 dark:bg-white/[0.06] ${
@@ -58,12 +59,13 @@ function PostCard({ post, rank, onLike }) {
         </Link>
       </div>
 
+      <div className="flex shrink-0 flex-col items-center gap-1.5">
       <button
         type="button"
         onClick={() => onLike(post.id)}
         aria-pressed={post.likedByMe}
         aria-label={post.likedByMe ? `Unlike ${mix.title}` : `Like ${mix.title}`}
-        className={`flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-3 py-2 transition active:scale-90 ${
+        className={`flex flex-col items-center gap-0.5 rounded-2xl px-3 py-2 transition active:scale-90 ${
           post.likedByMe
             ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30 animate-heart-pop'
             : 'bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-500 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-rose-500/20'
@@ -72,6 +74,20 @@ function PostCard({ post, rank, onLike }) {
         <Heart size={20} fill={post.likedByMe ? 'currentColor' : 'none'} aria-hidden />
         <span className="text-sm font-black tabular-nums">{post.likes}</span>
       </button>
+      <button
+        type="button"
+        onClick={() => (armed ? onReport(post.id) : onArmReport(post.id))}
+        aria-label={armed ? `Confirm report for ${mix.title}` : `Report ${mix.title}`}
+        title="Report this post"
+        className={`rounded-full px-2 py-1 text-[10px] font-extrabold transition active:scale-90 ${
+          armed
+            ? 'bg-red-500 text-white shadow'
+            : 'text-slate-300 hover:bg-red-50 hover:text-red-400 dark:text-slate-600 dark:hover:bg-red-500/10 dark:hover:text-red-400'
+        }`}
+      >
+        {armed ? 'Sure?' : <Flag size={13} aria-hidden />}
+      </button>
+      </div>
     </article>
   );
 }
@@ -81,13 +97,24 @@ export default function CommunityBoard() {
   const [latest, setLatest] = useState(() => getLatest());
   const [mine, setMine] = useState(() => getMyPosts());
   const [myLikes, setMyLikes] = useState(() => getMyTotalLikes());
+  const [reportArmed, setReportArmed] = useState(null);
 
-  const onLike = (id) => {
-    toggleLike(id);
+  const refresh = () => {
     setTop10(getTop10());
     setLatest(getLatest());
     setMine(getMyPosts());
     setMyLikes(getMyTotalLikes());
+  };
+
+  const onLike = (id) => {
+    toggleLike(id);
+    refresh();
+  };
+
+  const onReport = (id) => {
+    reportPost(id);
+    setReportArmed(null);
+    refresh();
   };
 
   return (
@@ -108,7 +135,7 @@ export default function CommunityBoard() {
           </p>
           <div className="mt-4 grid gap-3">
             {mine.map((p) => (
-              <PostCard key={p.id} post={p} rank={null} onLike={onLike} />
+              <PostCard key={p.id} post={p} rank={null} onLike={onLike} onReport={onReport} reportArmed={reportArmed} onArmReport={setReportArmed} />
             ))}
           </div>
         </section>
@@ -123,7 +150,7 @@ export default function CommunityBoard() {
         </h2>
         <div className="mt-4 grid gap-3">
           {top10.map((p, i) => (
-            <PostCard key={p.id} post={p} rank={i + 1} onLike={onLike} />
+            <PostCard key={p.id} post={p} rank={i + 1} onLike={onLike} onReport={onReport} reportArmed={reportArmed} onArmReport={setReportArmed} />
           ))}
         </div>
       </section>
@@ -137,7 +164,7 @@ export default function CommunityBoard() {
         </h2>
         <div className="mt-4 grid gap-3">
           {latest.map((p) => (
-            <PostCard key={p.id} post={p} rank={null} onLike={onLike} />
+            <PostCard key={p.id} post={p} rank={null} onLike={onLike} onReport={onReport} reportArmed={reportArmed} onArmReport={setReportArmed} />
           ))}
         </div>
       </section>

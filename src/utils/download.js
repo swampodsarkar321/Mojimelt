@@ -61,6 +61,42 @@ export async function copyImageToClipboard(svgElement, size = 1024) {
   return true;
 }
 
+// ── WebP sticker export (512×512 — WhatsApp sticker size) ────────────────────
+export async function downloadSvgAsWebp(svgElement, filename = 'mojimelt.webp', size = 512) {
+  const pngBlob = await svgToPngBlob(svgElement, size);
+  const url = URL.createObjectURL(pngBlob);
+  try {
+    const img = new Image();
+    const loaded = new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+    img.src = url;
+    await loaded;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+    const webpBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.92));
+    if (!webpBlob) throw new Error('WebP not supported here');
+    const dlUrl = URL.createObjectURL(webpBlob);
+    try {
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(dlUrl), 4000);
+    }
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export async function copyText(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Code2, Dices } from 'lucide-react';
+import { Menu, X, Moon, Sun, Code2, Dices, Smartphone } from 'lucide-react';
 import Logo from './Logo.jsx';
 import { randomEmoji } from '../data/emojiData.js';
 
@@ -13,7 +13,59 @@ const LINKS = [
 
 export default function Header({ theme, onToggleTheme }) {
   const [open, setOpen] = useState(false);
+  const [installEvt, setInstallEvt] = useState(null);
+  const [installed, setInstalled] = useState(false);
+  const [iosHint, setIosHint] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    try {
+      const mq = window.matchMedia('(display-mode: standalone)');
+      const check = () => setInstalled(mq.matches || window.navigator.standalone === true);
+      check();
+      mq.addEventListener?.('change', check);
+      const onPrompt = (e) => {
+        e.preventDefault();
+        setInstallEvt(e);
+      };
+      const onInstalled = () => {
+        setInstalled(true);
+        setInstallEvt(null);
+      };
+      window.addEventListener('beforeinstallprompt', onPrompt);
+      window.addEventListener('appinstalled', onInstalled);
+      return () => {
+        mq.removeEventListener?.('change', check);
+        window.removeEventListener('beforeinstallprompt', onPrompt);
+        window.removeEventListener('appinstalled', onInstalled);
+      };
+    } catch {
+      return undefined;
+    }
+  }, []);
+
+  const isIos = (() => {
+    try {
+      return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.MSStream;
+    } catch {
+      return false;
+    }
+  })();
+  const showInstall = !installed && (installEvt || isIos);
+
+  const onInstall = async () => {
+    if (installEvt) {
+      installEvt.prompt();
+      try {
+        await installEvt.userChoice;
+      } catch {
+        /* ignore */
+      }
+      setInstallEvt(null);
+    } else {
+      setIosHint((v) => !v);
+    }
+  };
 
   const surprise = () => {
     const a = randomEmoji();
@@ -56,6 +108,28 @@ export default function Header({ theme, onToggleTheme }) {
           >
             <Dices size={16} aria-hidden /> Surprise
           </button>
+          {showInstall && (
+            <span className="relative">
+              <button
+                type="button"
+                onClick={onInstall}
+                className="relative grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/30 transition hover:scale-105 active:scale-95"
+                aria-label="Install Mojimelt app on your device"
+                aria-expanded={iosHint}
+              >
+                <Smartphone size={18} aria-hidden />
+                <span className="absolute top-1 right-1 flex h-2.5 w-2.5" aria-hidden>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
+                </span>
+              </button>
+              {iosHint && !installEvt && (
+                <span className="absolute top-12 right-0 z-50 w-56 rounded-2xl border border-slate-200 bg-white p-3 text-xs font-semibold text-slate-600 shadow-2xl dark:border-white/10 dark:bg-[#1b1b2b] dark:text-slate-300">
+                  iPhone-e install korte: Safari-r <strong>Share ⬆️</strong> → <strong>Add to Home Screen</strong> chap dao 📲
+                </span>
+              )}
+            </span>
+          )}
           <button
             type="button"
             onClick={onToggleTheme}
