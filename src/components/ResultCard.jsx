@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, FlaskConical, Film, ChevronDown, Image as ImageIcon } from 'lucide-react';
+import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, Film, ChevronDown, Image as ImageIcon } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import ShareButtons from './ShareButtons.jsx';
 import PostStudio from './PostStudio.jsx';
@@ -9,13 +9,6 @@ import { mixId } from '../utils/mixer.js';
 import { downloadSvgAsPng, copyImageToClipboard } from '../utils/download.js';
 import { downloadMixGif } from '../utils/gif.js';
 import { isFavorite, toggleFavorite } from '../utils/storage.js';
-
-function prettyTrait(value) {
-  return String(value)
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
 
 export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
   const svgRef = useRef(null);
@@ -153,29 +146,6 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
         <p role="status" className="animate-pop-in mx-auto mt-4 flex w-fit items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg dark:bg-white dark:text-slate-900">
           <Check size={14} aria-hidden /> {toast}
         </p>
-      )}
-
-      {mix.recipe && mix.recipe.length > 0 && (
-        <div className="mt-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-3 dark:border-white/10 dark:bg-white/5">
-          <p className="flex items-center gap-1.5 text-xs font-extrabold tracking-widest text-violet-600 uppercase dark:text-violet-300">
-            <FlaskConical size={13} aria-hidden /> Mix recipe — what came from where
-          </p>
-          <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Mix recipe">
-            {mix.recipe.slice(0, 8).map((r, i) => (
-              <li
-                key={`${r.group}-${r.value}-${i}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1.5 text-[11px] font-extrabold text-slate-600 shadow-sm dark:bg-black/30 dark:text-slate-200"
-                title={`${r.group}: ${prettyTrait(r.value)} — from ${r.from === 'A' ? mix.nameA : r.from === 'B' ? mix.nameB : r.from === 'both' ? 'both emojis' : 'fusion'}`}
-              >
-                <span className="text-slate-400 dark:text-slate-500">{r.group}</span>
-                <span>{prettyTrait(r.value)}</span>
-                <span aria-hidden className="text-sm leading-none">
-                  {r.from === 'A' ? mix.a : r.from === 'B' ? mix.b : r.from === 'both' ? `${mix.a}${mix.b}` : '🌀'}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
 
       <button
