@@ -1,4 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/sw.js", "destination": "/sw.js" },
+    { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
+    { "source": "/favicon.svg", "destination": "/favicon.svg" },
+    { "source": "/og-cover.svg", "destination": "/og-cover.svg" },
+    { "source": "/icons/:file", "destination": "/icons/:file" },
+    { "source": "/assets/:file", "destination": "/assets/:file" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
