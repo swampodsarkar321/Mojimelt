@@ -106,7 +106,8 @@ export function mixId(a, b) {
 }
 
 export function shareUrl(a, b) {
-  const url = new URL(window.location.href);
-  url.hash = `#/mix?emoji1=${encodeURIComponent(a)}&emoji2=${encodeURIComponent(b)}`;
+  const url = new URL(window.location.origin + '/mix');
+  url.searchParams.set('emoji1', a);
+  url.searchParams.set('emoji2', b);
   return url.toString();
 }

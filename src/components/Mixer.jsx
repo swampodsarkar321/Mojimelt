@@ -27,8 +27,9 @@ export default function Mixer({ initialA = '😂', initialB = '🔥', onMixChang
     onMixChange?.(mix);
     if (!opts.silent) {
       try {
-        const url = new URL(window.location.href);
-        url.hash = `#/mix?emoji1=${encodeURIComponent(a)}&emoji2=${encodeURIComponent(b)}`;
+        const url = new URL(window.location.origin + '/mix');
+        url.searchParams.set('emoji1', a);
+        url.searchParams.set('emoji2', b);
         window.history.replaceState(null, '', url.toString());
       } catch { /* ignore */ }
     }

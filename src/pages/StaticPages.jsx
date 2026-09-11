@@ -1,5 +1,6 @@
-export function SimplePage({ title, kicker, children }) {
-  return (
+﻿import { Link } from 'react-router-dom';
+
+export function SimplePage({ title, kicker, children }) {  return (
     <main className="mx-auto max-w-3xl px-4 pt-10 pb-8 sm:px-6">
       <p className="text-xs font-extrabold tracking-[0.25em] text-violet-600 uppercase dark:text-violet-300">{kicker}</p>
       <h1 className="font-display mt-1 text-3xl font-black text-slate-900 sm:text-4xl dark:text-white">{title}</h1>
@@ -13,7 +14,7 @@ export function PrivacyPage() {
     <SimplePage title="Privacy Policy" kicker="The boring (but honest) part">
       <p>Mojimelt is a front-end toy. We do not run accounts, analytics beacons, or advertising trackers in this version.</p>
       <p><strong>Local storage only.</strong> Your favorites, recent mixes, recently-used emojis and theme preference are stored in your browser's LocalStorage under keys prefixed with <code>mojimelt:</code>. Clearing site data removes them permanently.</p>
-      <p><strong>Share links.</strong> Mixes are encoded directly in the URL (e.g. <code>#/mix?emoji1=😂&amp;emoji2=😈</code>). Opening a shared link simply reads those two characters and re-renders the artwork locally — nothing is uploaded anywhere.</p>
+      <p><strong>Share links.</strong> Mixes are encoded directly in the URL (e.g. <code>/mix?emoji1=ðŸ˜‚&amp;emoji2=ðŸ˜ˆ</code>). Opening a shared link simply reads those two characters and re-renders the artwork locally â€” nothing is uploaded anywhere.</p>
       <p><strong>Downloads.</strong> PNG export happens entirely on-device via canvas. Your creations never leave your browser unless you share them yourself.</p>
       <p>Questions? Open an issue on our GitHub repository.</p>
       <p className="text-xs opacity-70">Last updated: January 2026.</p>
@@ -35,9 +36,9 @@ export function TermsPage() {
 
 export function NotFoundPage() {
   return (
-    <SimplePage title="Lost in the sauce 🫠" kicker="404">
+    <SimplePage title="Lost in the sauce ðŸ« " kicker="404">
       <p>That page doesn't exist. Let's get you back to mixing.</p>
-      <p><a href="#/" className="font-bold text-violet-600 underline">← Back home</a></p>
+      <p><Link to="/" className="font-bold text-violet-600 underline">â† Back home</Link></p>
     </SimplePage>
   );
 }
