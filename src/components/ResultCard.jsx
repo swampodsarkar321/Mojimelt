@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, FlaskConical, Film } from 'lucide-react';
+import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, FlaskConical, Film, ChevronDown, Image as ImageIcon } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import ShareButtons from './ShareButtons.jsx';
 import PostStudio from './PostStudio.jsx';
@@ -25,6 +25,8 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [gifProgress, setGifProgress] = useState(0);
+  const [dlOpen, setDlOpen] = useState(false);
+  const dlRef = useRef(null);
   const [showPost, setShowPost] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
   const toastTimer = useRef(null);
@@ -37,6 +39,22 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
   };
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  useEffect(() => {
+    if (!dlOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setDlOpen(false);
+    };
+    const onClick = (e) => {
+      if (dlRef.current && !dlRef.current.contains(e.target)) setDlOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+    };
+  }, [dlOpen]);
 
   useEffect(() => {
     setFav(isFavorite(mix.a, mix.b));
@@ -178,28 +196,68 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
           {copied ? <Check size={17} aria-hidden /> : <ClipboardCopy size={17} aria-hidden />}
           {copying ? 'Copying…' : copied ? 'Copied!' : 'Copy Emoji'}
         </button>
-        <button
-          type="button"
-          onClick={onDownload}
-          disabled={downloading}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-extrabold text-white transition hover:scale-[1.02] active:scale-95 disabled:opacity-70 dark:bg-white dark:text-slate-900"
-        >
-          <Download size={17} aria-hidden /> {downloading ? 'Saving…' : 'Download PNG'}
-        </button>
-        <button
-          type="button"
-          onClick={onGif}
-          disabled={gifProgress > 0}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3.5 text-sm font-extrabold text-slate-700 transition hover:scale-[1.02] hover:border-violet-300 active:scale-95 disabled:opacity-70 dark:border-white/15 dark:bg-white/10 dark:text-white"
-        >
-          <Film size={17} aria-hidden />
-          {gifProgress > 0 ? `GIF ${gifProgress}%` : 'GIF'}
-        </button>
+        <div className="relative" ref={dlRef}>
+          <button
+            type="button"
+            onClick={() => setDlOpen((v) => !v)}
+            disabled={downloading || gifProgress > 0}
+            aria-haspopup="menu"
+            aria-expanded={dlOpen}
+            aria-label="Download options"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-extrabold text-white transition hover:scale-[1.02] active:scale-95 disabled:opacity-70 dark:bg-white dark:text-slate-900"
+          >
+            <Download size={17} aria-hidden />
+            {gifProgress > 0 ? `GIF ${gifProgress}%` : downloading ? 'Saving…' : 'Download'}
+            <ChevronDown size={16} aria-hidden className={`transition-transform ${dlOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {dlOpen && (
+            <div
+              role="menu"
+              aria-label="Download format"
+              className="animate-pop-in absolute bottom-full left-0 z-20 mb-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl dark:border-white/10 dark:bg-[#1b1b2b]"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setDlOpen(false);
+                  onDownload();
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-violet-50 dark:hover:bg-white/10"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
+                  <ImageIcon size={18} aria-hidden />
+                </span>
+                <span>
+                  <span className="block text-sm font-extrabold text-slate-800 dark:text-white">PNG Image</span>
+                  <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">Transparent background</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setDlOpen(false);
+                  onGif();
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-violet-50 dark:hover:bg-white/10"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white">
+                  <Film size={18} aria-hidden />
+                </span>
+                <span>
+                  <span className="block text-sm font-extrabold text-slate-800 dark:text-white">GIF Animation</span>
+                  <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">Moving bouncing emoji</span>
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={onFav}
           aria-pressed={fav}
-          className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-extrabold transition hover:scale-[1.02] active:scale-95 ${
+          className={`col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-extrabold transition hover:scale-[1.02] active:scale-95 ${
             fav
               ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30'
               : 'border-2 border-slate-200 bg-white text-slate-700 hover:border-rose-300 dark:border-white/15 dark:bg-white/10 dark:text-white'
