@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Shuffle, Crown, Trophy, Clock3, User, Flag } from 'lucide-react';
+import { Heart, Shuffle, Crown, Trophy, Clock3, User, Flag, WifiOff } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import { mixEmojis } from '../utils/mixer.js';
-import { getTop10, getLatest, getMyPosts, getMyTotalLikes, toggleLike, reportPost, timeAgo } from '../utils/community.js';
+import { seedPosts, subscribePosts, top10Of, latestOf, myPostsOf, toggleLike, reportPost, getReportedIds, timeAgo } from '../utils/community.js';
 
 const RANK_STYLE = [
   'bg-gradient-to-br from-amber-300 to-yellow-500 text-amber-950 shadow-amber-500/40',
@@ -93,32 +93,50 @@ function PostCard({ post, rank, onLike, onReport, reportArmed, onArmReport }) {
 }
 
 export default function CommunityBoard() {
-  const [top10, setTop10] = useState(() => getTop10());
-  const [latest, setLatest] = useState(() => getLatest());
-  const [mine, setMine] = useState(() => getMyPosts());
-  const [myLikes, setMyLikes] = useState(() => getMyTotalLikes());
+  // instant local seeds → replaced by live cloud data when it arrives
+  const [posts, setPosts] = useState(() => seedPosts());
+  const [offline, setOffline] = useState(false);
+  const [reported, setReported] = useState(() => getReportedIds());
   const [reportArmed, setReportArmed] = useState(null);
 
-  const refresh = () => {
-    setTop10(getTop10());
-    setLatest(getLatest());
-    setMine(getMyPosts());
-    setMyLikes(getMyTotalLikes());
-  };
+  useEffect(() => {
+    const unsub = subscribePosts(
+      (list) => {
+        setPosts(list);
+        setOffline(false);
+      },
+      () => setOffline(true)
+    );
+    return unsub;
+  }, []);
 
-  const onLike = (id) => {
-    toggleLike(id);
-    refresh();
+  const visible = posts.filter((p) => !reported.has(p.id));
+  const top10 = top10Of(visible);
+  const latest = latestOf(visible);
+  const mine = myPostsOf(visible);
+  const myLikes = mine.reduce((sum, p) => sum + p.likes, 0);
+
+  const onLike = async (id) => {
+    try {
+      await toggleLike(id);
+    } catch {
+      setOffline(true);
+    }
   };
 
   const onReport = (id) => {
     reportPost(id);
     setReportArmed(null);
-    refresh();
+    setReported(getReportedIds());
   };
 
   return (
     <div>
+      {offline && (
+        <p role="status" className="mb-4 flex items-center justify-center gap-2 rounded-2xl border border-amber-300/60 bg-amber-50 px-4 py-2.5 text-xs font-extrabold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+          <WifiOff size={14} aria-hidden /> Offline — showing saved board, will sync when connected.
+        </p>
+      )}
       {mine.length > 0 && (
         <section aria-labelledby="mine-heading" className="mb-10 rounded-[2rem] border-2 border-violet-300/60 bg-gradient-to-br from-violet-50 to-fuchsia-50 p-4 sm:p-5 dark:border-violet-500/30 dark:from-violet-500/10 dark:to-fuchsia-500/10">
           <h2 id="mine-heading" className="flex items-center gap-2 font-display text-xl font-black text-slate-900 sm:text-2xl dark:text-white">

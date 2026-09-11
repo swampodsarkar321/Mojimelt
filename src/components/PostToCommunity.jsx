@@ -6,6 +6,7 @@ import { addPost } from '../utils/community.js';
 
 export default function PostToCommunity({ mix, onClose, onPosted }) {
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const onKey = (e) => {
@@ -19,11 +20,17 @@ export default function PostToCommunity({ mix, onClose, onPosted }) {
     };
   }, [onClose]);
 
-  const submit = () => {
+  const submit = async () => {
     if (busy) return;
     setBusy(true);
-    const post = addPost({ a: mix.a, b: mix.b });
-    onPosted?.(post);
+    setError('');
+    try {
+      const post = await addPost({ a: mix.a, b: mix.b });
+      onPosted?.(post);
+    } catch {
+      setError('Posting failed — check your internet and try again.');
+      setBusy(false);
+    }
   };
 
   return (
@@ -56,6 +63,11 @@ export default function PostToCommunity({ mix, onClose, onPosted }) {
         <p className="mt-2 text-lg font-black text-slate-800 dark:text-white" aria-hidden>
           {mix.a} + {mix.b}
         </p>
+        {error && (
+          <p role="alert" className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600 dark:bg-red-500/10 dark:text-red-300">
+            {error}
+          </p>
+        )}
 
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button
