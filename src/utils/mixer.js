@@ -44,6 +44,31 @@ function hashStr(s) {
   return Math.abs(h);
 }
 
+// ── Provenance: which parent emoji each visual part came from ────────────────
+function sourceOf(value, t1, t2, key) {
+  const in1 = Array.isArray(t1[key]) ? t1[key].includes(value) : t1[key] === value;
+  const in2 = Array.isArray(t2[key]) ? t2[key].includes(value) : t2[key] === value;
+  if (in1 && in2) return 'both';
+  if (in1) return 'A';
+  if (in2) return 'B';
+  return 'fused';
+}
+
+function buildRecipe(spec, t1, t2) {
+  const recipe = [
+    { group: 'Face', value: spec.base, from: sourceOf(spec.base, t1, t2, 'base') },
+    { group: 'Eyes', value: spec.eyes, from: sourceOf(spec.eyes, t1, t2, 'eyes') },
+    { group: 'Mouth', value: spec.mouth, from: sourceOf(spec.mouth, t1, t2, 'mouth') },
+  ];
+  for (const x of spec.extras || []) {
+    recipe.push({ group: 'Extra', value: x, from: sourceOf(x, t1, t2, 'extras') });
+  }
+  for (const f of spec.effects || []) {
+    recipe.push({ group: 'Effect', value: f, from: sourceOf(f, t1, t2, 'effects') });
+  }
+  return recipe;
+}
+
 const FUN_TITLES = [
   'Certified Chaos', 'Double Trouble', 'Mashup Magic', 'Forbidden Fusion',
   'Cuteness Overload', 'Beautiful Accident', 'Lab Experiment', 'Unhinged Cutie',
@@ -56,12 +81,14 @@ export function mixEmojis(charA, charB) {
 
   const rule = findRule(charA, charB);
   if (rule) {
+    const spec = { ...rule.spec };
     return {
       a: charA,
       b: charB,
       title: rule.title,
       blurb: rule.blurb,
-      spec: { ...rule.spec },
+      spec,
+      recipe: buildRecipe(spec, e1.traits, e2.traits),
       curated: true,
       nameA: e1.name,
       nameB: e2.name,
@@ -83,18 +110,23 @@ export function mixEmojis(charA, charB) {
 
   const eyes = pickEye(t1, t2);
   const mouth = pickMouth(t1, t2);
-  const extras = mergeUnique(t1.extras, t2.extras);
+  // guarantee both parents stay visible: keep at least one extra from each side
+  const extrasA = (t1.extras || []).slice(0, 3);
+  const extrasB = (t2.extras || []).filter((x) => !extrasA.includes(x)).slice(0, 2);
+  const extras = [...extrasA, ...extrasB].slice(0, 5);
   const effects = mergeUnique(t1.effects, t2.effects);
 
   const h = hashStr(charA + 'x' + charB);
   const title = FUN_TITLES[h % FUN_TITLES.length];
+  const spec = { base, eyes, mouth, extras, effects };
 
   return {
     a: charA,
     b: charB,
     title,
     blurb: `${e1.name} meets ${e2.name.toLowerCase()} — a brand-new original creation.`,
-    spec: { base, eyes, mouth, extras, effects },
+    spec,
+    recipe: buildRecipe(spec, t1, t2),
     curated: false,
     nameA: e1.name,
     nameB: e2.name,
