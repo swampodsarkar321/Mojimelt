@@ -144,17 +144,17 @@ function drawTee(ctx, S, mixImg, color) {
   ctx.moveTo(404, 758);
   ctx.quadraticCurveTo(540, 772, 676, 758);
   ctx.stroke();
-  // artwork on chest
-  const art = 350;
-  ctx.drawImage(mixImg, 540 - art / 2, 452, art, art);
+  // artwork on chest (fits inside body seams)
+  const art = 250;
+  ctx.drawImage(mixImg, 540 - art / 2, 478, art, art);
 }
 
 function drawMug(ctx, S, mixImg) {
   backdrop(ctx, S, '#fffbeb', '#fde68a');
   floorShadow(ctx, 520, 820, 230);
-  // handle (behind body)
+  // handle (behind body, touching its edge)
   ctx.beginPath();
-  ctx.arc(700, 540, 110, -Math.PI / 2.4, Math.PI / 2.4);
+  ctx.arc(665, 540, 110, -Math.PI / 2.4, Math.PI / 2.4);
   ctx.strokeStyle = '#e8edf3';
   ctx.lineWidth = 54;
   ctx.stroke();
@@ -246,9 +246,9 @@ function drawCap(ctx, S, mixImg) {
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.lineWidth = 4;
   ctx.stroke();
-  // artwork on front panel
-  const art = 185;
-  ctx.drawImage(mixImg, 540 - art / 2, 360, art, art);
+  // artwork on front panel (fully above the brim line)
+  const art = 150;
+  ctx.drawImage(mixImg, 540 - art / 2, 312, art, art);
 }
 
 export async function renderMockup(svgElement, productId, teeColorId = 'white') {
