@@ -174,10 +174,11 @@ export default async function handler(req, res) {
 
     return res.status(200).json(out);
   } catch (err) {
+    const detail = err?.cause?.message || err?.message || String(err);
     const msg =
       err?.name === 'AbortError'
         ? 'NESCO server is taking too long. Please try again.'
         : err?.message || 'Something went wrong.';
-    return res.status(502).json({ ok: false, error: msg });
+    return res.status(502).json({ ok: false, error: msg, detail });
   }
 }
