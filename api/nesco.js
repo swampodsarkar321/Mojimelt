@@ -125,7 +125,7 @@ export default async function handler(req, res) {
       headers: { 'User-Agent': UA, Accept: 'text/html' },
     });
     collectCookies(getRes, jar);
-    if (!getRes.ok) throw new Error('NESCO server unreachable. Try again in a moment.');
+    if (!getRes.ok) throw new Error(`NESCO upstream HTTP ${getRes.status}. Try again in a moment.`);
     const csrf = parseCsrf(await getRes.text());
     if (!csrf) throw new Error('NESCO page format changed. Please try again later.');
 
