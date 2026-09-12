@@ -83,7 +83,8 @@ export default function PostStudio({ mix, svgRef, onClose, onToast }) {
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
-      onToast?.('Post image downloaded — ready for Instagram & Facebook!');
+      window.open('https://www.facebook.com/', '_blank', 'noopener');
+      onToast?.('PNG downloaded + Facebook opened — attach & Post! 📘');
     });
 
   const onCopy = () =>
@@ -97,35 +98,6 @@ export default function PostStudio({ mix, svgRef, onClose, onToast }) {
       onToast?.('Post copied — paste it anywhere!');
     });
 
-  const onFbPost = () =>
-    withCanvas('fb', async (canvas) => {
-      const blob = await canvasToBlob(canvas);
-      let copied = false;
-      if (window.ClipboardItem && navigator.clipboard?.write) {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          copied = true;
-        } catch {
-          /* fall through to download */
-        }
-      }
-      if (!copied) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'mojimelt-post.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-      }
-      window.open('https://www.facebook.com/', '_blank', 'noopener');
-      onToast?.(
-        copied
-          ? 'Image copied! Facebook-e giye Ctrl+V (paste) chap dao 📋'
-          : 'PNG download holo + Facebook khulechi — chobi attach kore Post dao!'
-      );
-    });
   const onShare = () =>
     withCanvas('share', async (canvas) => {
       const blob = await canvasToBlob(canvas);
@@ -216,7 +188,7 @@ export default function PostStudio({ mix, svgRef, onClose, onToast }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 p-5">
+        <div className="grid grid-cols-3 gap-2 p-5">
           <button
             type="button"
             onClick={onDownload}
@@ -225,15 +197,6 @@ export default function PostStudio({ mix, svgRef, onClose, onToast }) {
           >
             {busy === 'download' ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Download size={15} aria-hidden />}
             Post PNG
-          </button>
-          <button
-            type="button"
-            onClick={onFbPost}
-            disabled={!preview || busy}
-            className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[#1877F2] px-2 py-3 text-xs font-extrabold text-white shadow-lg transition hover:scale-[1.03] hover:bg-[#1466d1] active:scale-95 disabled:opacity-60"
-          >
-            {busy === 'fb' ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <span aria-hidden>📘</span>}
-            FB Post
           </button>
           <button
             type="button"
