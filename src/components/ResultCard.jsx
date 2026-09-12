@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, Film, ChevronDown, Image as ImageIcon, Sticker } from 'lucide-react';
+import { Download, Heart, Dices, Check, ClipboardCopy, Newspaper, Trophy, Film, ChevronDown, Image as ImageIcon, Sticker, Shirt } from 'lucide-react';
 import EmojiArt from './EmojiArt.jsx';
 import ShareButtons from './ShareButtons.jsx';
 import PostStudio from './PostStudio.jsx';
+import MockupStudio from './MockupStudio.jsx';
 import PostToCommunity from './PostToCommunity.jsx';
 import { mixId } from '../utils/mixer.js';
 import { downloadSvgAsPng, copyImageToClipboard, downloadSvgAsWebp } from '../utils/download.js';
@@ -21,6 +22,7 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
   const [dlOpen, setDlOpen] = useState(false);
   const dlRef = useRef(null);
   const [showPost, setShowPost] = useState(false);
+  const [showMockup, setShowMockup] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
   const toastTimer = useRef(null);
   const navigate = useNavigate();
@@ -270,24 +272,34 @@ export default function ResultCard({ mix, shareHref, mixing, onRemix }) {
         <ShareButtons mix={mix} shareHref={shareHref} onToast={flash} />
       </div>
 
-      <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+      <div className="mt-2.5 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={() => setShowPost(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.02] active:scale-95"
+          className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-3 text-xs font-extrabold text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.02] active:scale-95 sm:text-sm"
         >
-          <Newspaper size={16} aria-hidden /> Create Post
+          <Newspaper size={16} aria-hidden /> Post Card
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowMockup(true)}
+          className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-[1.02] active:scale-95 sm:text-sm"
+        >
+          <Shirt size={16} aria-hidden /> Mockup
         </button>
         <button
           type="button"
           onClick={onRemix}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-4 py-3.5 text-sm font-extrabold text-white shadow-lg transition hover:scale-[1.02] active:scale-95"
+          className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-2 py-3 text-xs font-extrabold text-white shadow-lg transition hover:scale-[1.02] active:scale-95 sm:text-sm"
         >
-          <Dices size={16} aria-hidden /> Mix Again
+          <Dices size={16} aria-hidden /> Remix
         </button>
       </div>
       {showPost && (
         <PostStudio mix={mix} svgRef={svgRef} onClose={() => setShowPost(false)} onToast={flash} />
+      )}
+      {showMockup && (
+        <MockupStudio mix={mix} svgRef={svgRef} onClose={() => setShowMockup(false)} onToast={flash} />
       )}
       {showCommunity && (
         <PostToCommunity
