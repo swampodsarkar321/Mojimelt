@@ -59,26 +59,6 @@ export default function Home({ recentTick }) {
         </div>
       </div>
 
-      <div className="mt-8">
-        <Link
-          to="/nesco"
-          className="group flex items-center gap-4 rounded-[2rem] border border-emerald-200/70 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl sm:p-6 dark:border-emerald-500/20 dark:from-emerald-500/10 dark:to-teal-500/10"
-        >
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-xl font-black text-white shadow-lg">
-            ⚡
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="font-display block font-extrabold text-slate-900 dark:text-white">
-              New tool: NESCO Bill Check
-            </span>
-            <span className="block truncate text-sm text-slate-500 dark:text-slate-400">
-              Live prepaid balance, recharge history & monthly usage — free, no signup.
-            </span>
-          </span>
-          <ArrowRight size={20} className="shrink-0 text-emerald-500 transition-transform group-hover:translate-x-1" aria-hidden />
-        </Link>
-      </div>
-
       <div className="mt-12 pb-4">
         <RecentMixes refreshKey={recentTick} />
       </div>
