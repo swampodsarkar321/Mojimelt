@@ -6,6 +6,7 @@ import BottomNav from './components/BottomNav.jsx';
 import Home from './pages/Home.jsx';
 import MixerPage from './pages/MixerPage.jsx';
 import CommunityPage from './pages/CommunityPage.jsx';
+import NescoPage from './pages/NescoPage.jsx';
 import FavoritesPage from './pages/FavoritesPage.jsx';
 import { PrivacyPage, TermsPage, NotFoundPage } from './pages/StaticPages.jsx';
 import { getFavorites, removeFavorite, getTheme, setTheme } from './utils/storage.js';
@@ -50,6 +51,10 @@ const PAGE_SEO = {
   '/favorites': {
     title: 'My Favorite Emoji Mixes | Mojimelt',
     desc: 'Your saved emoji mixes, stored privately in your browser. Download, remix and share them.',
+  },
+  '/nesco': {
+    title: 'NESCO Bill Check – Prepaid Balance & Usage | Mojimelt Tools',
+    desc: 'Check your NESCO prepaid electricity balance, recharge history and monthly usage live. Free, fast, no signup.',
   },
   '/privacy': {
     title: 'Privacy Policy | Mojimelt',
@@ -141,6 +146,7 @@ function Shell() {
           <Route path="/mixer" element={<MixerPage onMixChange={handleMixChange} recentTick={recentTick} />} />
           <Route path="/mix" element={<MixerPage onMixChange={handleMixChange} recentTick={recentTick} />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/nesco" element={<NescoPage />} />
           <Route path="/favorites" element={<FavoritesPage favorites={favorites} onRemove={handleRemoveFav} />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />

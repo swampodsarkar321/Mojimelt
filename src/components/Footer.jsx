@@ -23,7 +23,7 @@ export default function Footer() {
             <Link to="/" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Home</Link>
             <Link to="/mixer" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Mixer</Link>
             <Link to="/community" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Top 10</Link>
-            <Link to="/favorites" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Favorites</Link>
+            <Link to="/nesco" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">NESCO Bill Check</Link>            <Link to="/favorites" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Favorites</Link>
             <Link to="/privacy" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Privacy</Link>
             <Link to="/terms" className="text-slate-600 hover:text-violet-600 dark:text-slate-300">Terms</Link>
           </nav>

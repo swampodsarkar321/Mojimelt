@@ -9,6 +9,7 @@
     { "source": "/og-cover.svg", "destination": "/og-cover.svg" },
     { "source": "/icons/:file", "destination": "/icons/:file" },
     { "source": "/assets/:file", "destination": "/assets/:file" },
+    { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

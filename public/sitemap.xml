@@ -21,6 +21,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://mojimelt.vercel.app/nesco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://mojimelt.vercel.app/mix?emoji1=%F0%9F%98%82&amp;emoji2=%F0%9F%98%88</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
